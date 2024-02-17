@@ -62,7 +62,7 @@ resource "aws_eks_cluster" "eks-cluster" {
   vpc_config {
     subnet_ids         = aws_subnet.subnets[*].id
     security_group_ids = [aws_security_group.sg.id]
-  }
+  } 
 
   depends_on = [
     aws_cloudwatch_log_group.logs,
