@@ -32,13 +32,13 @@ resource "aws_iam_role_policy_attachment" "node-AmazonEC2ContainerRegistryReadOn
 }
 
 data "aws_ec2_instance_type" "instance_type" {
-    instance_type = "t2.micro"
+  instance_type = "t2.micro"
 }
 
-output "Instance-Type" {
+
+output "instance-type" {
   value = data.aws_ec2_instance_type.instance_type.instance_type
 }
-
 
 
 resource "aws_eks_node_group" "node-1" {
@@ -49,9 +49,30 @@ resource "aws_eks_node_group" "node-1" {
   instance_types  = [data.aws_ec2_instance_type.instance_type.instance_type]
 
   scaling_config {
-    desired_size = 2
-    max_size     = 4
-    min_size     = 2
+    desired_size = var.desired_size
+    max_size     = var.max_size
+    min_size     = var.min_size
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.node-AmazonEC2ContainerRegistryReadOnly,
+    aws_iam_role_policy_attachment.node-AmazonEKS_CNI_Policy,
+    aws_iam_role_policy_attachment.node-AmazonEKSWorkerNodePolicy
+  ]
+}
+
+
+resource "aws_eks_node_group" "node-2" {
+  cluster_name    = aws_eks_cluster.eks-cluster.name
+  node_group_name = "node-2"
+  node_role_arn   = aws_iam_role.node.arn
+  subnet_ids      = aws_subnet.subnets[*].id
+  instance_types  = [data.aws_ec2_instance_type.instance_type.instance_type]
+
+  scaling_config {
+    desired_size = var.desired_size
+    max_size     = var.max_size
+    min_size     = var.min_size
   }
 
   depends_on = [
