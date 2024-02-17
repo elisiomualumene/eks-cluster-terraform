@@ -35,21 +35,39 @@ POLICY
 
 
 resource "aws_iam_role_policy_attachment" "cluster-AmazonEKSVPCResourceController" {
-    role = aws_iam_role.cluster.name
-    policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
+  role       = aws_iam_role.cluster.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
 }
 
 resource "aws_iam_role_policy_attachment" "cluster-AmazonEKSClusterPolicy" {
-    role = aws_iam_role.cluster.name
-    policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.cluster.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
 
 resource "aws_iam_role_policy_attachment" "cluster-AmazonEKSServicePolicy" {
-    role = aws_iam_role.cluster.name
-    policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+  role       = aws_iam_role.cluster.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
 }
 
 resource "aws_cloudwatch_log_group" "logs" {
-  name = "/aws/eks/${var.prefix}-${var.cluster_name}/cluster"
+  name              = "/aws/eks/${var.prefix}-${var.cluster_name}/cluster"
   retention_in_days = var.retention_days
+}
+
+resource "aws_eks_cluster" "eks-cluster" {
+  name                      = "${var.prefix}-${var.cluster_name}"
+  role_arn                  = aws_iam_role.cluster.arn
+  enabled_cluster_log_types = ["api", "audit"]
+
+  vpc_config {
+    subnet_ids         = aws_subnet.subnets[*].id
+    security_group_ids = [aws_security_group.sg.id]
+  }
+
+  depends_on = [
+    aws_cloudwatch_log_group.logs,
+    aws_iam_role_policy_attachment.cluster-AmazonEKSClusterPolicy,
+    aws_iam_role_policy_attachment.cluster-AmazonEKSServicePolicy,
+    aws_iam_role_policy_attachment.cluster-AmazonEKSVPCResourceController
+  ]
 }
