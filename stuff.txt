@@ -1,0 +1,4 @@
+Command to change you kubeconfig settings
+_________________________________________
+cp /path/to/new/kubeconfig ~/.kube/config
+_________________________________________
