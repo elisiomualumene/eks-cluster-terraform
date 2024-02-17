@@ -33,3 +33,23 @@ resource "aws_iam_role" "cluster" {
 POLICY
 }
 
+
+resource "aws_iam_role_policy_attachment" "cluster-AmazonEKSVPCResourceController" {
+    role = aws_iam_role.cluster.name
+    policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
+}
+
+resource "aws_iam_role_policy_attachment" "cluster-AmazonEKSClusterPolicy" {
+    role = aws_iam_role.cluster.name
+    policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "cluster-AmazonEKSServicePolicy" {
+    role = aws_iam_role.cluster.name
+    policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+}
+
+resource "aws_cloudwatch_log_group" "logs" {
+  name = "/aws/eks/${var.prefix}-${var.cluster_name}/cluster"
+  retention_in_days = var.retention_days
+}
