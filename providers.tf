@@ -10,6 +10,12 @@ terraform {
       version = "2.4.1"
     }
   }
+
+  backend "s3" {
+    bucket = "terraform-state-bucket"
+    region = "us-east-1"
+    
+  }
 }
 
 provider "aws" {
